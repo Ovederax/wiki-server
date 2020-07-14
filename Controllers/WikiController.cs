@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using wiki_server.dto.response;
 using wiki_server.Models;
+using wiki_server.Services;
 
 
 
 
-// Попробуйте вынести логику из контроллеров в сервисы и\или репозитории
-
+// TODO Попробуйте вынести логику из контроллеров в сервисы и\или репозитории
 
 namespace wiki_server.Controllers
 {
@@ -20,7 +20,7 @@ namespace wiki_server.Controllers
         public ActionResult<WikiResponse> Get()
         {
             DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(Models.DatabaseContext)) as DatabaseContext;
+                .GetService(typeof(DatabaseContext)) as DatabaseContext;
             List<WikiItem> list =  context.FindAllPages();
             List<SearchItem> searchItems = new List<SearchItem>();
             foreach(WikiItem it in list) {
@@ -35,7 +35,7 @@ namespace wiki_server.Controllers
         public ActionResult<WikiResponse> Get(string text)
         {
             DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(Models.DatabaseContext)) as DatabaseContext;
+                .GetService(typeof(DatabaseContext)) as DatabaseContext;
             List<WikiItem> list = context.FindPageByContainText(text);
             List<SearchItem> searchItems = new List<SearchItem>();
             foreach (WikiItem it in list)
@@ -43,8 +43,6 @@ namespace wiki_server.Controllers
                 searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
             }
             return new WikiResponse(searchItems);
-            //return Newtonsoft.Json.JsonConvert.SerializeObject(list);
         }
-
     }
 }

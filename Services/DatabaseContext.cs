@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using wiki_server.Models;
 
-namespace wiki_server.Models 
+namespace wiki_server.Services 
 {
     public class DatabaseContext {
         /*
-         * В роли БД можете выбрать SqlLite
          * Используйте EF Core для работы с БД
          */
         public string ConnectionString { get; set; }

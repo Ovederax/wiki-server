@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using wiki_server.dto.request;
 using wiki_server.dto.response;
 using wiki_server.Models;
+using wiki_server.Services;
 
 namespace wiki_server.Controllers
 {
@@ -20,13 +21,13 @@ namespace wiki_server.Controllers
         public ActionResult<SuccessResponse> Post(WikiItemCreateRequest req)
         {
             DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(Models.DatabaseContext)) as DatabaseContext;
+                .GetService(typeof(DatabaseContext)) as DatabaseContext;
 
             WikiItem item = new WikiItem {
                 pageid = 0,
                 title = req.title,
                 snippet = req.snippet,
-                timestamp = "11.07.2020"
+                timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ")
             };
             context.InsertWikiItem(item);
             return new SuccessResponse();
@@ -36,16 +37,14 @@ namespace wiki_server.Controllers
         public ActionResult<SuccessResponse> Put(WikiItemEditRequest req)
         {
             DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(Models.DatabaseContext)) as DatabaseContext;
+                .GetService(typeof(DatabaseContext)) as DatabaseContext;
 
-            // Редактировать страницы 
-            // (правила для полей те же, timestamp обновляется автоматически)
             WikiItem item = new WikiItem
             {
                 pageid = req.pageid,
                 title = req.title,
                 snippet = req.snippet, 
-                timestamp = "11.07.2020"
+                timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ")
             };
             context.UpdateWikiItem(item);
             return new SuccessResponse();
@@ -55,7 +54,7 @@ namespace wiki_server.Controllers
         public ActionResult<SuccessResponse> Delete(int pageid)
         {
             DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(Models.DatabaseContext)) as DatabaseContext;
+                .GetService(typeof(DatabaseContext)) as DatabaseContext;
             context.DeleleWikiItemById(pageid);
             return new SuccessResponse();
         }

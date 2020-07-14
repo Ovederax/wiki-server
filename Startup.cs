@@ -1,18 +1,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Configuration;
+using System.Linq;
 using wiki_server.Models;
+using wiki_server.Services;
 
 namespace wiki_server
 {
     public class Startup
     {
+
+        private Microsoft.AspNetCore.Hosting.IWebHostEnvironment CurrentEnvironment { get; set; }
         public IConfigurationRoot Configuration { get; }
-        public Startup(Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -24,13 +26,9 @@ namespace wiki_server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore().AddRazorViewEngine();
-            //string s = ConfigurationManager.ConnectionStrings["ConnectionStrings"].ConnectionString;
-            //string s = Configuration.GetConnectionString("ConnectionStrings");
-            string s = "server=127.0.0.1; port=3306; database=wikidb; user=root; password=test;";
+            string connectStr = Configuration["ConnectionStrings"];
             services.AddControllers();
-            services.Add(
-                new ServiceDescriptor(typeof(DatabaseContext), 
-                new DatabaseContext(s)));
+            services.AddSingleton(new DatabaseContext(connectStr));
             services.AddCors();
         }
 
