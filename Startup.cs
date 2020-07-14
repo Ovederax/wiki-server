@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
-using wiki_server.Models;
 using wiki_server.Services;
 
 namespace wiki_server
@@ -12,7 +11,7 @@ namespace wiki_server
     public class Startup
     {
 
-        private Microsoft.AspNetCore.Hosting.IWebHostEnvironment CurrentEnvironment { get; set; }
+        private IWebHostEnvironment CurrentEnvironment { get; set; }
         public IConfigurationRoot Configuration { get; }
         public Startup(IWebHostEnvironment env)
         {
@@ -26,9 +25,9 @@ namespace wiki_server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore().AddRazorViewEngine();
-            string connectStr = Configuration["ConnectionStrings"];
             services.AddControllers();
-            services.AddSingleton(new DatabaseContext(connectStr));
+            services.AddSingleton<ApplicationContext>();
+            services.AddSingleton<WikiService, WikiServiceImpl>();
             services.AddCors();
         }
 

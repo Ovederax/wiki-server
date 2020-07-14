@@ -16,46 +16,42 @@ namespace wiki_server.Controllers
     [ApiController]
     public class WikiEditController : ControllerBase
     {
+        private WikiService service;
+
+        public WikiEditController(WikiService service)
+        {
+            this.service = service;
+        }
+
         // Сохранять новые страницы
         [HttpPost]
         public ActionResult<SuccessResponse> Post(WikiItemCreateRequest req)
         {
-            DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(DatabaseContext)) as DatabaseContext;
-
             WikiItem item = new WikiItem {
-                pageid = 0,
                 title = req.title,
                 snippet = req.snippet,
                 timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ")
             };
-            context.InsertWikiItem(item);
+            service.InsertWikiItem(item);
             return new SuccessResponse();
         }
 
         [HttpPut]
         public ActionResult<SuccessResponse> Put(WikiItemEditRequest req)
         {
-            DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(DatabaseContext)) as DatabaseContext;
-
-            WikiItem item = new WikiItem
-            {
-                pageid = req.pageid,
-                title = req.title,
-                snippet = req.snippet, 
-                timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ")
-            };
-            context.UpdateWikiItem(item);
+            WikiItem item = service.FindWikiItemById(req.pageid);
+            item.title = req.title;
+            item.snippet = req.snippet;
+            item.timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ");
+            service.UpdateWikiItem(item);
             return new SuccessResponse();
         }
 
         [HttpDelete("{pageid}")]
         public ActionResult<SuccessResponse> Delete(int pageid)
         {
-            DatabaseContext context = HttpContext.RequestServices
-                .GetService(typeof(DatabaseContext)) as DatabaseContext;
-            context.DeleleWikiItemById(pageid);
+            WikiItem item = service.FindWikiItemById(pageid);
+            service.DeleteWikiItem(item);
             return new SuccessResponse();
         }
     }

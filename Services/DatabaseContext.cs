@@ -5,12 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using wiki_server.Models;
 
+/**
+    Old context to connect with MySQL without ORM  
+*/
 namespace wiki_server.Services 
 {
     public class DatabaseContext {
-        /*
-         * Используйте EF Core для работы с БД
-         */
         public string ConnectionString { get; set; }
 
         public DatabaseContext(string connectionString) {
