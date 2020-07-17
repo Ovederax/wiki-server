@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using wiki_server.dto.response;
@@ -24,27 +26,30 @@ namespace wiki_server.Controllers
         }
 
         [HttpGet]
-        public ActionResult<WikiResponse> Get()
+        public ActionResult<WikiResponse> Get(int page, int limit, bool last)
         {
-            List<WikiItem> list = service.FindAllPages();
-            List<SearchItem> searchItems = new List<SearchItem>();
-            foreach(WikiItem it in list) {
-                searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
+            if(page <= 0) {
+                page = 0;
             }
-            return new WikiResponse(searchItems);
+            if(limit <= 0 || limit > 10) {
+                limit = 10;
+            }
+
+            return service.FindPages(page, limit, last);
         }
 
 
         [HttpGet("{text}")]
-        public ActionResult<WikiResponse> Get(string text)
+        public ActionResult<WikiResponse> Get(string text, int page, int limit, bool last)
         {
-            List<WikiItem> list = service.FindPageByContainText(text);
-            List<SearchItem> searchItems = new List<SearchItem>();
-            foreach (WikiItem it in list)
-            {
-                searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
+            if (page <= 0) {
+                page = 0;
             }
-            return new WikiResponse(searchItems);
+            if (limit <= 0 || limit > 10) {
+                limit = 10;
+            }
+
+            return service.FindPageByContainText(text, page, limit, last);
         }
     }
 }

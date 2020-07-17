@@ -21,7 +21,6 @@ namespace wiki_server.Services
             return new MySqlConnection(ConnectionString);
         }
 
-
         public List<WikiItem> FindAllPages() {
             List<WikiItem> list = new List<WikiItem>();
 

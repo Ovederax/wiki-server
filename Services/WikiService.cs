@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using wiki_server.dto.response;
 using wiki_server.Models;
 
 namespace wiki_server.Services
 {
     public interface WikiService {
-        List<WikiItem> FindAllPages();
-        List<WikiItem> FindPageByContainText(string text);
+        WikiResponse FindPages(int page, int limit, bool last);
+        WikiResponse FindPageByContainText(string text, int page, int limit, bool last);
         bool InsertWikiItem(WikiItem item);
         bool UpdateWikiItem(WikiItem item);
         bool DeleteWikiItem(WikiItem item);
@@ -36,17 +37,44 @@ namespace wiki_server.Services
             ctx.SaveChanges();
             return true;
         }
-
-        public List<WikiItem> FindAllPages()
+       
+        public WikiResponse FindPages(int page, int limit, bool last)
         {
-            return ctx.Items.ToList();
+            IQueryable<WikiItem> query = ctx.Items;
+            int count = query.Count();
+            int allPages = count / limit + ((count % limit > 0)?  1:0);
+            if(last) {
+                page = allPages-1;
+                if(page < 0) {
+                    page = 0;
+                }
+            }
+            List<WikiItem> list =  query.Skip(page * limit).Take(limit).ToList();
+            List<SearchItem> searchItems = new List<SearchItem>();
+            foreach (WikiItem it in list) {
+                searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
+            }
+            return new WikiResponse(page, allPages, searchItems);
         }
 
-        public List<WikiItem> FindPageByContainText(string text)
+        public WikiResponse FindPageByContainText(string text, int page, int limit, bool last)
         {
             var query = ctx.Items.Select(it => it)
-                .Where(it => it.title.Contains(text));
-            return query.ToList();
+                .Where(it => it.title.ToLower().Contains(text.ToLower()));
+            int count = query.Count();
+            int allPages = count / limit + ((count % limit > 0) ? 1 : 0);
+            if (last) {
+                page = allPages - 1;
+                if (page < 0) {
+                    page = 0;
+                }
+            }
+            List<WikiItem> list = query.Skip(page*limit).Take(limit).ToList();
+            List<SearchItem> searchItems = new List<SearchItem>();
+            foreach (WikiItem it in list) {
+                searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
+            }
+            return new WikiResponse(page, allPages, searchItems);
         }
 
         public bool UpdateWikiItem(WikiItem item)

@@ -30,19 +30,23 @@ namespace wiki_server.Controllers
             WikiItem item = new WikiItem {
                 title = req.title,
                 snippet = req.snippet,
-                timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ")
+                timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ")
             };
             service.InsertWikiItem(item);
-            return new SuccessResponse();
+            return SuccessResponse.OK();
         }
 
         [HttpPut]
         public ActionResult<SuccessResponse> Put(WikiItemEditRequest req)
         {
             WikiItem item = service.FindWikiItemById(req.pageid);
+            if(item == null)
+            {
+                return new BadRequestResult();
+            }
             item.title = req.title;
             item.snippet = req.snippet;
-            item.timestamp = DateTime.Now.ToString("yyyy-MM-ddThh:mm:ssZ");
+            item.timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ");
             service.UpdateWikiItem(item);
             return new SuccessResponse();
         }
