@@ -25,7 +25,7 @@ namespace wiki_server.Controllers
 
         // Сохранять новые страницы
         [HttpPost]
-        public ActionResult<SuccessResponse> Post(WikiItemCreateRequest req)
+        public ActionResult<ResponseStatus> CreateWikiItem(WikiItemCreateRequest req)
         {
             WikiItem item = new WikiItem {
                 title = req.title,
@@ -33,11 +33,11 @@ namespace wiki_server.Controllers
                 timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ")
             };
             service.InsertWikiItem(item);
-            return SuccessResponse.OK();
+            return ResponseStatus.OK();
         }
 
         [HttpPut]
-        public ActionResult<SuccessResponse> Put(WikiItemEditRequest req)
+        public ActionResult<ResponseStatus> UpdateWikiItem(WikiItemEditRequest req)
         {
             WikiItem item = service.FindWikiItemById(req.pageid);
             if(item == null)
@@ -48,15 +48,15 @@ namespace wiki_server.Controllers
             item.snippet = req.snippet;
             item.timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ");
             service.UpdateWikiItem(item);
-            return new SuccessResponse();
+            return ResponseStatus.OK();
         }
 
         [HttpDelete("{pageid}")]
-        public ActionResult<SuccessResponse> Delete(int pageid)
+        public ActionResult<ResponseStatus> DeleteWikiItem(int pageid)
         {
             WikiItem item = service.FindWikiItemById(pageid);
             service.DeleteWikiItem(item);
-            return new SuccessResponse();
+            return ResponseStatus.OK();
         }
     }
 }

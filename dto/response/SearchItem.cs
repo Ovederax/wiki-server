@@ -22,20 +22,5 @@ namespace wiki_server.dto.response
             this.snippet = snippet;
             this.timestamp = timestamp;
         }
-    }  
-
-    public struct WikiResponse {
-        public WikiResponse(int page, int allPageCount, List<SearchItem> searchItems)
-        {
-            this.page = page;
-            this.allPageCount = allPageCount;
-            this.search = searchItems;
-        }
-
-        public int page { get; set; }
-        public int allPageCount { get; set; }
-        public List<SearchItem> search { get; set; }
-
-
-    }
+    } 
 }

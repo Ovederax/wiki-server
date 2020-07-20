@@ -26,30 +26,28 @@ namespace wiki_server.Controllers
         }
 
         [HttpGet]
-        public ActionResult<WikiResponse> Get(int page, int limit, bool last)
+        public ActionResult<PageResponse<SearchItem>> GetPages(int page, int pageSize)
         {
             if(page <= 0) {
                 page = 0;
             }
-            if(limit <= 0 || limit > 10) {
-                limit = 10;
+            if(pageSize <= 0) {
+                pageSize = 10;
             }
-
-            return service.FindPages(page, limit, last);
+            return service.FindPages(page, pageSize);
         }
 
 
         [HttpGet("{text}")]
-        public ActionResult<WikiResponse> Get(string text, int page, int limit, bool last)
+        public ActionResult<PageResponse<SearchItem>> GetPagesByTitle(string text, int page, int pageSize)
         {
             if (page <= 0) {
                 page = 0;
             }
-            if (limit <= 0 || limit > 10) {
-                limit = 10;
+            if (pageSize <= 0) {
+                pageSize = 10;
             }
-
-            return service.FindPageByContainText(text, page, limit, last);
+            return service.FindPageByContainText(text, page, pageSize);
         }
     }
 }

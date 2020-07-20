@@ -8,8 +8,8 @@ using wiki_server.Models;
 namespace wiki_server.Services
 {
     public interface WikiService {
-        WikiResponse FindPages(int page, int limit, bool last);
-        WikiResponse FindPageByContainText(string text, int page, int limit, bool last);
+        PageResponse<SearchItem> FindPages(int page, int pageSize);
+        PageResponse<SearchItem> FindPageByContainText(string text, int page, int pageSize);
         bool InsertWikiItem(WikiItem item);
         bool UpdateWikiItem(WikiItem item);
         bool DeleteWikiItem(WikiItem item);
@@ -19,6 +19,7 @@ namespace wiki_server.Services
     class WikiServiceImpl : WikiService
     {
         private ApplicationContext ctx;
+        private const int LAST_PAGE = Int32.MaxValue;
 
         public WikiServiceImpl(ApplicationContext ctx) {
             this.ctx = ctx;
@@ -38,43 +39,43 @@ namespace wiki_server.Services
             return true;
         }
        
-        public WikiResponse FindPages(int page, int limit, bool last)
+        public PageResponse<SearchItem> FindPages(int page, int pageSize)
         {
             IQueryable<WikiItem> query = ctx.Items;
-            int count = query.Count();
-            int allPages = count / limit + ((count % limit > 0)?  1:0);
-            if(last) {
-                page = allPages-1;
+            int totalItems = query.Count();
+            int totalPages = totalItems / pageSize + ((totalItems % pageSize > 0)?  1:0);
+            if(page == LAST_PAGE) {
+                page = totalPages-1;
                 if(page < 0) {
                     page = 0;
                 }
             }
-            List<WikiItem> list =  query.Skip(page * limit).Take(limit).ToList();
+            List<WikiItem> list =  query.Skip(page * pageSize).Take(pageSize).ToList();
             List<SearchItem> searchItems = new List<SearchItem>();
             foreach (WikiItem it in list) {
                 searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
             }
-            return new WikiResponse(page, allPages, searchItems);
+            return new PageResponse<SearchItem>(searchItems, page, pageSize, totalItems);
         }
 
-        public WikiResponse FindPageByContainText(string text, int page, int limit, bool last)
+        public PageResponse<SearchItem> FindPageByContainText(string text, int page, int pageSize)
         {
             var query = ctx.Items.Select(it => it)
                 .Where(it => it.title.ToLower().Contains(text.ToLower()));
-            int count = query.Count();
-            int allPages = count / limit + ((count % limit > 0) ? 1 : 0);
-            if (last) {
-                page = allPages - 1;
+            int totalItems = query.Count();
+            int totalPages = totalItems / pageSize + ((totalItems % pageSize > 0) ? 1 : 0);
+            if (page == LAST_PAGE) {
+                page = totalPages - 1;
                 if (page < 0) {
                     page = 0;
                 }
             }
-            List<WikiItem> list = query.Skip(page*limit).Take(limit).ToList();
+            List<WikiItem> list = query.Skip(page*pageSize).Take(pageSize).ToList();
             List<SearchItem> searchItems = new List<SearchItem>();
             foreach (WikiItem it in list) {
                 searchItems.Add(new SearchItem(it.pageid, it.title, it.snippet, it.timestamp));
             }
-            return new WikiResponse(page, allPages, searchItems);
+            return new PageResponse<SearchItem>(searchItems, page, pageSize, totalItems);
         }
 
         public bool UpdateWikiItem(WikiItem item)
